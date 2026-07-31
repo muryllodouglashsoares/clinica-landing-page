@@ -1,39 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { OdontoPrimeLandingPage } from "@/components/OdontoPrimeLandingPage";
+import { siteConfig } from "@/data/site-config";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "OdontoPrime — Clínica Odontológica Premium em São Paulo" },
-      {
-        name: "description",
-        content:
-          "Clínica odontológica premium com tecnologia digital, atendimento humanizado e +5.000 sorrisos transformados. Agende sua avaliação gratuita.",
-      },
-      { property: "og:title", content: "OdontoPrime — Sorrisos que Transformam Vidas" },
+      { title: `${siteConfig.name} — Clínica Odontológica Premium em ${siteConfig.address.city}` },
+      { name: "description", content: siteConfig.description },
+      { property: "og:title", content: `${siteConfig.name} — ${siteConfig.tagline}` },
       {
         property: "og:description",
-        content:
-          "Cuidado odontológico de excelência com tecnologia de ponta e atendimento humanizado.",
+        content: "Cuidado odontológico de excelência com tecnologia de ponta e atendimento humanizado.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: siteConfig.url },
+      { property: "og:image", content: siteConfig.ogImage },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: `${siteConfig.name} — ${siteConfig.tagline}` },
+      { name: "twitter:description", content: siteConfig.description },
+      { name: "twitter:image", content: siteConfig.ogImage },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: siteConfig.url }],
   }),
   component: Index,
 });
 
-// A landing page é HTML/CSS/JS puro em /public/odontoprime — redirecionamos para ela.
 function Index() {
-  useEffect(() => {
-    window.location.replace("/odontoprime/index.html");
-  }, []);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <p className="text-sm text-muted-foreground">Carregando OdontoPrime…</p>
-    </div>
-  );
+  return <OdontoPrimeLandingPage />;
 }
