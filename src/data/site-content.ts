@@ -303,7 +303,7 @@ export const team: TeamMember[] = [
     photoUrl: "https://images.unsplash.com/photo-1645066928295-2506defde470?w=400&h=500&fit=crop&auto=format",
   },
   {
-    name: "Dra. Marcos Oliveira",
+    name: "Dr. Marcos Oliveira",
     role: "Especialista",
     specialty: "Odontopediatria",
     croNumber: "CRO-SP 52.019",
