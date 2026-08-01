@@ -246,7 +246,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "Sempre tive fobia de dentista, mas aqui foi completamente diferente. A Dra. Beatriz explicou cada passo, não senti dor nenhuma e ainda me ligaram depois para saber como eu estava.",
+      "Sempre tive fobia de dentista, mas aqui foi completamente diferente.O Dr.Marcos explicou cada passo, não senti dor nenhuma e ainda me ligaram depois para saber como eu estava.",
     author: "Fernanda Costa",
     treatment: "Tratamento de Canal",
     avatarUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80&h=80&fit=crop&auto=format",
@@ -303,7 +303,7 @@ export const team: TeamMember[] = [
     photoUrl: "https://images.unsplash.com/photo-1645066928295-2506defde470?w=400&h=500&fit=crop&auto=format",
   },
   {
-    name: "Dra. Beatriz Oliveira",
+    name: "Dra. Marcos Oliveira",
     role: "Especialista",
     specialty: "Odontopediatria",
     croNumber: "CRO-SP 52.019",
