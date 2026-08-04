@@ -7,7 +7,7 @@ com foco em performance, SEO e acessibilidade.
 > ⚠️ **Este é um projeto fictício de portfólio.** "OdontoPrime", os dentistas,
 > depoimentos e números de registro (CRO-SP) são inventados. O formulário de
 > contato está conectado a uma automação real (Make.com → Google Sheets) para
-> fins de demonstração — veja
+> fins de demonstração — veja [Formulário de contato](#formulário-de-contato)
 > abaixo antes de reutilizar este projeto.
 
 ## Demo
