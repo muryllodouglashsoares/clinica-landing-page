@@ -1,290 +1,115 @@
-# Figma Perfect Pixel
+# OdontoPrime — Landing Page
 
-Você é um desenvolvedor Front-end Sênior especializado em Landing Pages premium.
+Landing page premium para uma clínica odontológica fictícia, desenvolvida como
+peça de portfólio. Projeto pixel-perfect a partir de um design de referência,
+com foco em performance, SEO e acessibilidade.
 
-Sua missão é desenvolver uma landing page completa baseada EXCLUSIVAMENTE no design fornecido pelo Figma.
+> ⚠️ **Este é um projeto fictício de portfólio.** "OdontoPrime", os dentistas,
+> depoimentos e números de registro (CRO-SP) são inventados. O formulário de
+> contato está conectado a uma automação real (Make.com → Google Sheets) para
+> fins de demonstração — veja [Formulário de contato](#formulário-de-contato)
+> abaixo antes de reutilizar este projeto.
 
-IMPORTANTE:
+## Demo
 
-O objetivo NÃO é reinterpretar o design.
+Adicione aqui o link de deploy ao vivo (ex.: `https://odontoprime.lovable.app`
+ou um domínio próprio) assim que o projeto for publicado.
 
-O objetivo é reproduzi-lo com máxima fidelidade.
+## Stack
 
-Toda decisão de layout, espaçamento, tipografia, organização visual, proporções, cores e componentes deve seguir rigorosamente o design do Figma.
+- [TanStack Start](https://tanstack.com/start) + [TanStack Router](https://tanstack.com/router) — SSR e roteamento
+- React 19
+- HTML/CSS/JS puro para a landing page em si (`public/odontoprime`), servido
+  como conteúdo real da rota `/` (ver [Decisões de projeto](#decisões-de-projeto))
+- Tailwind CSS + [shadcn/ui](https://ui.shadcn.com/) (scaffold disponível para futuras páginas/telas internas)
+- Vite
 
-===========================
+## Rodando localmente
 
-OBJETIVO
-
-===========================
-
-Criar uma Landing Page moderna para uma clínica odontológica premium chamada "OdontoPrime".
-
-Ela deve possuir aparência de produto profissional pronto para produção.
-
-Não simplifique nenhum componente.
-
-Não remova seções.
-
-Não substitua elementos por versões genéricas.
-
-===========================
-
-DESENVOLVIMENTO
-
-===========================
-
-Utilize:
-
-• HTML semântico
-
-• CSS moderno
-
-• JavaScript puro
-
-Estruture o projeto da seguinte maneira:
-
-/
-
-index.html
-
-/css
-
-style.css
-
-/js
-
-script.js
-
-/assets
-
-/images
-
-/icons
-
-/fonts
-
-===========================
-
-QUALIDADE DO CÓDIGO
-
-===========================
-
-Escreva código limpo.
-
-Organizado.
-
-Bem comentado apenas quando necessário.
-
-Classes consistentes.
-
-Sem código duplicado.
-
-Responsividade utilizando Mobile First.
-
-Evite CSS desnecessário.
-
-===========================
-
-SEGUIR O FIGMA
-
-===========================
-
-Implemente exatamente:
-
-• Navbar
-
-• Hero
-
-• Cards
-
-• Botões
-
-• Ícones
-
-• Formulários
-
-• FAQ
-
-• Depoimentos
-
-• CTA
-
-• Footer
-
-• Espaçamentos
-
-• Hierarquia
-
-• Bordas
-
-• Sombras
-
-• Radius
-
-• Microdetalhes
-
-Tudo deve respeitar o Figma.
-
-===========================
-
-ANIMAÇÕES
-
-===========================
-
-Implemente animações suaves.
-
-Exemplos:
-
-Fade-in
-
-Slide-up
-
-Hover elegante
-
-Escala discreta
-
-Transitions suaves
-
-Botões responsivos
-
-Cards elevados
-
-Navbar dinâmica
-
-Scroll suave
-
-Sem exageros.
-
-===========================
-
-RESPONSIVIDADE
-
-===========================
-
-Desktop
-
-Notebook
-
-Tablet
-
-Celular
-
-Todos os elementos devem permanecer bem distribuídos.
-
-===========================
-
-ACESSIBILIDADE
-
-===========================
-
-Utilize:
-
-alt em imagens
-
-labels
-
-aria-label quando necessário
-
-contraste adequado
-
-HTML semântico
-
-===========================
-
-PERFORMANCE
-
-===========================
-
-Evite bibliotecas pesadas.
-
-Priorize carregamento rápido.
-
-Imagens preparadas para otimização.
-
-CSS organizado.
-
-JavaScript modular.
-
-===========================
-
-SEO
-
-===========================
-
-Adicionar:
-
-title
-
-meta description
-
-Open Graph
-
-favicon
-
-estrutura semântica
-
-heading hierarchy
-
-===========================
-
-FORMULÁRIO
-
-===========================
-
-Criar formulário funcional visualmente.
-
-Nome
-
-Telefone
-
-E-mail
-
-Mensagem
-
-Botão
-
-Não é necessário backend.
-
-===========================
-
-RESULTADO
-
-===========================
-
-Ao finalizar:
-
-Revise todo o código.
-
-Corrija inconsistências.
-
-Garanta que tudo esteja funcionando.
-
-Não altere o design original.
-
-Não invente novos componentes.
-
-Não simplifique nenhuma seção.
-
-A prioridade máxima é transformar o Figma em uma landing page extremamente fiel, organizada e pronta para receber refinamentos posteriores. Para isso, considere esse link de design do figmahttps://equity-acre-74593634.figma.site/
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/610c97d9-dd12-4f2d-8b9f-10e8da861790).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```bash
+bun install   # ou npm install / pnpm install
+bun run dev   # ou npm run dev
 ```
+
+Outros scripts disponíveis: `build`, `preview`, `lint`, `format`.
+
+## Estrutura
+
+```
+public/odontoprime/       Landing page (HTML/CSS/JS) — o conteúdo real do site
+  css/style.css
+  js/script.js
+  icons/
+src/routes/index.tsx      Rota "/" — renderiza o HTML acima via SSR e injeta
+                           metadados, JSON-LD e o script.js
+src/routes/__root.tsx     Shell da aplicação (head padrão, favicon, manifest)
+```
+
+## Decisões de projeto
+
+- **Por que HTML/CSS/JS puro dentro de uma rota React?** O design foi
+  construído como uma landing page estática (HTML/CSS/JS), mas o projeto usa
+  TanStack Start para servir esse conteúdo via SSR na rota `/`, em vez de um
+  `window.location.replace` client-side para um HTML solto em `/public`. Isso
+  evita o duplo carregamento (bundle React + depois HTML estático) e garante
+  que crawlers e previews de link (WhatsApp, Telegram, etc.) recebam o
+  conteúdo real da página, não uma tela de "carregando".
+- **Conteúdo gerado dinamicamente (`script.js`)**: grades de serviços,
+  equipe, depoimentos e FAQ são montadas via JavaScript no client, replicando
+  o comportamento do design original. Para uma futura evolução, esse
+  conteúdo pode ser migrado para componentes React server-rendered, o que
+  eliminaria a dependência de JS para essas seções aparecerem no HTML inicial.
+
+## Formulário de contato
+
+O formulário (`#contactForm`) é validado e enviado via `fetch` em
+`public/odontoprime/js/script.js`, na constante `FORM_ENDPOINT`.
+
+Atualmente ele está configurado para enviar os dados (nome, telefone, e-mail
+e mensagem) como `multipart/form-data` para um **Custom Webhook do
+Make.com**, que por sua vez grava cada envio como uma nova linha em uma
+planilha do **Google Sheets** (módulo *Google Sheets → Add a Row*).
+
+Fluxo resumido do cenário no Make:
+
+```
+Webhook (Custom webhook) → Google Sheets (Add a Row)
+```
+
+Se `FORM_ENDPOINT` estiver vazio (`""`), o formulário volta ao **modo
+demonstração**: valida os campos e simula uma confirmação, sem enviar nada —
+esse é o comportamento seguro para reaproveitar este projeto como peça de
+portfólio ou template.
+
+Outros destinos possíveis para `FORM_ENDPOINT`, caso não queira usar o Make:
+
+- [Formspree](https://formspree.io) — cole a URL do seu formulário
+- Qualquer outro webhook/endpoint que aceite `POST` com `multipart/form-data`
+
+> Como o `fetch` roda no navegador do visitante, a URL do webhook fica
+> visível no código-fonte da página — não é necessário (nem adianta) guardá-la
+> como variável de ambiente/secret no Cloudflare ou em qualquer plataforma de
+> deploy, já que o arquivo `script.js` é um asset estático servido como está,
+> fora do pipeline do Vite.
+
+## SEO
+
+- Dados estruturados (JSON-LD) para `Dentist` e `FAQPage` em `src/routes/index.tsx`
+- `public/sitemap.xml` e `public/robots.txt` (referenciando o sitemap)
+- `public/manifest.json` + ícones para instalação como PWA
+
+> Antes de publicar, troque `https://odontoprime.exemplo.com.br` pela URL
+> real do deploy em `sitemap.xml`, `robots.txt` e no JSON-LD.
+
+## O que falta para um projeto real (fora do escopo de portfólio)
+
+- Política de privacidade/LGPD real — o texto atual do formulário
+  (`form-privacy` em `src/routes/index.tsx`) ainda diz que "seus dados não
+  são armazenados nem compartilhados de verdade", o que não é mais verdade
+  com o Make.com conectado e precisa ser atualizado/substituído por um aviso
+  real, especialmente relevante por se tratar de um negócio de saúde
+- Consentimento explícito (opt-in) e base legal para tratamento dos dados
+  coletados via LGPD, já que hoje o envio ocorre sem checkbox de consentimento
+- Validação de compliance publicitário (ex.: normas do CFO para uso de fotos
+  de "antes e depois" em clínicas odontológicas reais no Brasil)
+- Testes automatizados

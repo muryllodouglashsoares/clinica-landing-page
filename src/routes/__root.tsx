@@ -77,14 +77,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "OdontoPrime — Clínica Odontológica Premium em São Paulo" },
+      {
+        name: "description",
+        content:
+          "Clínica odontológica premium com tecnologia digital, atendimento humanizado e +5.000 sorrisos transformados.",
+      },
+      { name: "theme-color", content: "#0d1526" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -92,6 +93,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "apple-touch-icon", href: "/odontoprime/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.json" },
     ],
   }),
   shellComponent: RootShell,
