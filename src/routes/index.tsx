@@ -41,11 +41,11 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "Dentist",
-      "@id": "https://odontoprime.exemplo.com.br/#clinica",
+      "@id": "https://clinica-landing-page.muryllodouglash-soares.workers.dev/#clinica",
       name: "OdontoPrime",
       description:
         "Clínica odontológica premium com tecnologia digital, atendimento humanizado e mais de 5.000 sorrisos transformados.",
-      url: "https://odontoprime.exemplo.com.br/",
+      url: "https://clinica-landing-page.muryllodouglash-soares.workers.dev/",
       telephone: "+55-11-3000-1000",
       priceRange: "$$$",
       image:
@@ -449,7 +449,7 @@ const BODY_HTML = `
           <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos sobre o tratamento desejado"></textarea>
         </div>
         <button class="btn btn--gold btn--block" type="submit">Enviar solicitação</button>
-        <p class="form-privacy">Projeto de portfólio: seus dados não são armazenados nem compartilhados de verdade. Em produção, este aviso seria substituído por uma política de privacidade real, conforme a LGPD.</p>
+        <p class="form-privacy">Projeto de portfólio: os dados enviados aqui são recebidos por uma automação de demonstração (Make.com → Google Sheets) e usados apenas para fins de teste, não para fins comerciais reais. Em produção, este aviso seria substituído por uma política de privacidade real, conforme a LGPD.</p>
         <p class="form-note" id="formNote" role="status" aria-live="polite"></p>
       </form>
     </div>
