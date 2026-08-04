@@ -521,7 +521,7 @@
   // nenhum (apenas simula sucesso). Para captar leads de verdade, crie um
   // formulário em https://formspree.io (ou um cenário/webhook no Make.com)
   // e cole a URL do endpoint aqui.
-  const FORM_ENDPOINT = "";
+  const FORM_ENDPOINT = "https://hook.us2.make.com/c99eaxrmhge9ljuav0vkc9kpxs0sxs9t";
 
   const setError = (input, message) => {
     const field = input.closest(".field");
