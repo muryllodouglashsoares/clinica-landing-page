@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Substitua "https://odontoprime.exemplo.com.br" pela URL real de publicação
+  do projeto (ex.: o domínio gerado pelo Lovable ou um domínio próprio) antes
+  de enviar este sitemap ao Google Search Console.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://odontoprime.exemplo.com.br/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
