@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://odontoprime.exemplo.com.br/sitemap.xml
+Sitemap: https://clinica-landing-page.muryllodouglash-soares.workers.dev/
