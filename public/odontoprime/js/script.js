@@ -456,6 +456,40 @@
     update();
   });
 
+  // Suporte a arrastar/deslizar (touch e mouse) sem remover os botões/dots existentes
+  let dragging = false;
+  let dragStartX = 0;
+  let dragDeltaX = 0;
+  let trackWidth = 0;
+
+  track.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    dragStartX = e.clientX;
+    dragDeltaX = 0;
+    trackWidth = track.getBoundingClientRect().width || 1;
+    track.style.transition = "none";
+    track.setPointerCapture(e.pointerId);
+  });
+  track.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    dragDeltaX = e.clientX - dragStartX;
+    const step = 100 / perView();
+    const basePercent = -index * step;
+    const deltaPercent = (dragDeltaX / trackWidth) * 100;
+    track.style.transform = `translateX(${basePercent + deltaPercent}%)`;
+  });
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    track.style.transition = "";
+    const threshold = trackWidth * 0.18;
+    if (dragDeltaX < -threshold) goTo(index + 1);
+    else if (dragDeltaX > threshold) goTo(index - 1);
+    else update();
+  };
+  track.addEventListener("pointerup", endDrag);
+  track.addEventListener("pointercancel", endDrag);
+
   /* ------------------ Antes e depois ------------------ */
   document.querySelectorAll(".ba__viewport").forEach((view) => {
     const after = $(".ba__after", view);
