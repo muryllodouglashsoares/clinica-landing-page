@@ -2,7 +2,7 @@
 
 > Landing page premium para uma clínica odontológica fictícia, com foco em performance, SEO e acessibilidade.
 
-> ⚠️ **Projeto fictício de portfólio.** "OdontoPrime", os dentistas, depoimentos e números de registro (CRO-SP) são inventados. O formulário de contato está conectado a uma automação real (Make.com → Google Sheets) para fins de demonstração.
+> ⚠️ **Projeto fictício de portfólio.** "OdontoPrime", os dentistas, depoimentos e números de registro (CRO-SP) são inventados. O formulário de contato pode ser conectado a uma automação real (Make.com → Google Sheets) para fins de demonstração, via variável de ambiente no servidor.
 
 ## 🌐 Demo
 
@@ -60,7 +60,7 @@ Landing page pixel-perfect construída a partir de um design de referência para
 ## Funcionalidades
 
 - [x] Landing page completa (serviços, equipe, depoimentos, FAQ) renderizada via SSR
-- [x] Formulário de contato funcional, integrado a um webhook real (Make.com → Google Sheets), com modo demonstração automático caso o endpoint esteja vazio
+- [x] Formulário de contato funcional, integrado a um webhook real (Make.com → Google Sheets), com modo demonstração automático caso `CONTACT_WEBHOOK_URL` não esteja configurada
 - [x] Dados estruturados (JSON-LD) para `Dentist` e `FAQPage`
 - [x] `sitemap.xml`, `robots.txt` e `manifest.json` (PWA) com ícones
 
@@ -81,7 +81,7 @@ Landing page pixel-perfect construída a partir de um design de referência para
 
 ## Design e UX
 
-O conteúdo da landing page em si (grades de serviços, equipe, depoimentos e FAQ) é montado dinamicamente via JavaScript no client (`public/odontoprime/js/script.js`), replicando o comportamento do design original de referência.
+O conteúdo da landing page (serviços, equipe, depoimentos, FAQ…) vem de uma fonte única de dados (`src/content/odontoprime.ts`) e é renderizado no servidor, inclusive o JSON-LD do FAQ. O `public/odontoprime/js/script.js` só adiciona interações (menu, slider, antes/depois, FAQ, formulário).
 
 ## Como executar
 
@@ -108,8 +108,9 @@ public/odontoprime/       Landing page (HTML/CSS/JS) — o conteúdo real do sit
   css/style.css
   js/script.js
   icons/
-src/routes/index.tsx      Rota "/" — renderiza o HTML acima via SSR e injeta
-                           metadados, JSON-LD e o script.js
+src/content/odontoprime.ts Fonte única dos dados + renderização das seções (SSR)
+src/routes/index.tsx      Rota "/" — HTML via SSR, metadados, JSON-LD e script.js
+src/routes/api/contact.ts Endpoint do formulário (valida e encaminha ao webhook)
 src/routes/__root.tsx     Shell da aplicação (head padrão, favicon, manifest)
 ```
 
@@ -121,17 +122,21 @@ O design foi construído como uma landing page estática (HTML/CSS/JS), mas o pr
 
 ### Formulário de contato
 
-O formulário (`#contactForm`) é validado e enviado via `fetch`, configurado para enviar os dados como `multipart/form-data` para um Custom Webhook do Make.com, que grava cada envio como uma nova linha em uma planilha do Google Sheets. Como o `fetch` roda no navegador do visitante, a URL do webhook fica visível no código-fonte — por isso ela não precisa (nem deveria) ser guardada como secret de plataforma, já que `script.js` é um asset estático fora do pipeline do Vite.
+O navegador envia o formulário (JSON) para `POST /api/contact` (`src/routes/api/contact.ts`). O servidor valida e limita o payload, confere a origem, descarta envios com o campo-isca preenchido e encaminha os dados (`multipart/form-data`, campos `nome`, `telefone`, `email`, `mensagem`) ao Custom Webhook do Make.com, que grava uma linha no Google Sheets. A URL do webhook **não** fica no código do cliente: ela é lida da variável de ambiente `CONTACT_WEBHOOK_URL` (sem prefixo `VITE_`).
 
-Outros destinos possíveis para o endpoint do formulário: Formspree, ou qualquer endpoint que aceite `POST` com `multipart/form-data`.
+- Produção (Cloudflare): defina `CONTACT_WEBHOOK_URL` como secret/variável do Worker.
+- Desenvolvimento: copie `.env.example` para `.env` e preencha.
+- Sem a variável, o formulário opera em **modo demonstração**: valida e informa que nada foi enviado.
+
+> Se uma URL de webhook já foi publicada em versões anteriores do repositório, considere-a comprometida e gere uma nova no Make.com.
 
 ## SEO
 
 - Dados estruturados (JSON-LD) para `Dentist` e `FAQPage` em `src/routes/index.tsx`
-- `public/sitemap.xml` e `public/robots.txt` (referenciando o sitemap)
+- `public/sitemap.xml` e `public/robots.txt` (apontando para `/sitemap.xml`)
 - `public/manifest.json` + ícones para instalação como PWA
 
-> Antes de publicar, é necessário trocar a URL de exemplo (`https://odontoprime.exemplo.com.br`) pela URL real do deploy em `sitemap.xml`, `robots.txt` e no JSON-LD.
+> A URL do site está em `SITE_URL` (`src/content/odontoprime.ts`), `sitemap.xml` e `robots.txt`. Ao mudar de domínio, atualize os três.
 
 ## Deploy
 

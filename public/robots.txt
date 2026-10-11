@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://clinica-landing-page.muryllodouglash-soares.workers.dev/
+Sitemap: https://clinica-landing-page.muryllodouglash-soares.workers.dev/sitemap.xml

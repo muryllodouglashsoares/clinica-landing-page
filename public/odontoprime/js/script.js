@@ -1,633 +1,425 @@
 /* =========================================================
    OdontoPrime — script.js
-   Módulos: navbar, menu mobile, reveal, conteúdo dinâmico,
-   slider de depoimentos, antes/depois, FAQ e formulário.
+   Interações da landing page (JS puro, sem dependências):
+   navbar, menu mobile, reveal on scroll, slider de depoimentos,
+   comparador antes/depois, FAQ, aviso de portfólio e formulário.
+
+   O conteúdo (listas, FAQ, depoimentos…) é renderizado no servidor
+   a partir de src/content/odontoprime.ts; este arquivo apenas o aprimora.
+
+   API: window.OdontoPrime.init() → função de limpeza (remove listeners,
+   observers e timers). Seguro para Strict Mode / remontagem da rota.
    ========================================================= */
 (function () {
   "use strict";
 
-  /* ------------------ Dados ------------------ */
-  const benefits = [
-    [
-      "🤝",
-      "Atendimento Humanizado",
-      "Tratamos cada paciente com empatia, atenção e cuidado individualizado, criando um ambiente de confiança mútua.",
-    ],
-    [
-      "💻",
-      "Tecnologia Digital",
-      "Equipamentos de última geração: tomografia 3D, scanner intraoral, laser e materiais biocompatíveis premium.",
-    ],
-    [
-      "✨",
-      "Resultados Naturais",
-      "Estética dental que respeita a harmonia do seu rosto — sorrisos que parecem naturais porque foram planejados assim.",
-    ],
-    [
-      "🛋️",
-      "Ambiente Confortável",
-      "Clínica projetada para proporcionar conforto e relaxamento — porque o cuidado começa na sua chegada.",
-    ],
-    [
-      "🎓",
-      "Equipe Especializada",
-      "Mais de 12 especialistas altamente qualificados com formação nacional e internacional reconhecida.",
-    ],
-    [
-      "📋",
-      "Atendimento Personalizado",
-      "Plano de tratamento exclusivo para cada paciente, respeitando suas necessidades, objetivos e orçamento.",
-    ],
-  ];
+  if (window.OdontoPrime) return;
 
-  const timeline = [
-    [
-      "2009",
-      "Fundação",
-      "Abrimos as portas com a missão de democratizar a odontologia de excelência em São Paulo.",
-    ],
-    [
-      "2014",
-      "Expansão",
-      "Ampliamos para 10 consultórios e incorporamos as primeiras tecnologias digitais de ponta.",
-    ],
-    [
-      "2019",
-      "Inovação digital",
-      "Implementamos scanner intraoral 3D, planejamento digital e protocolo de sedação consciente.",
-    ],
-    [
-      "2024",
-      "Referência premium",
-      "Reconhecida como uma das clínicas de maior prestígio do estado, com +5.000 sorrisos transformados.",
-    ],
-  ];
+  const FORM_ENDPOINT = "/api/contact"; // o destino real fica no servidor (CONTACT_WEBHOOK_URL)
+  const FORM_TIMEOUT_MS = 15000;
 
-  const services = [
-    [
-      "🦷",
-      "Implantes",
-      "Reposição de dentes perdidos com implantes de titânio da mais alta qualidade, com integração natural e durabilidade superior.",
-      "Mais popular",
-    ],
-    [
-      "😁",
-      "Ortodontia",
-      "Alinhamento dental com aparelhos metálicos, estéticos ou alinhadores transparentes para um sorriso harmonioso.",
-      "",
-    ],
-    [
-      "💡",
-      "Clareamento",
-      "Clareamento dental de consultório com tecnologia LED/laser para resultados até 8 tons mais claros em uma sessão.",
-      "",
-    ],
-    [
-      "💎",
-      "Lentes de Contato",
-      "Ultra-finas facetas de porcelana que corrigem forma, cor e tamanho sem desgaste excessivo do dente natural.",
-      "Premium",
-    ],
-    [
-      "🔧",
-      "Próteses",
-      "Próteses fixas e removíveis com estética e funcionalidade, personalizadas em laboratório digital próprio.",
-      "",
-    ],
-    [
-      "🪥",
-      "Limpeza",
-      "Profilaxia completa com remoção de tártaro e manchas, polimento e aplicação de flúor para saúde bucal preventiva.",
-      "",
-    ],
-    [
-      "🩺",
-      "Tratamento de Canal",
-      "Endodontia com rotação contínua e localizador apical eletrônico — salve seu dente natural com conforto e precisão.",
-      "",
-    ],
-    [
-      "🧸",
-      "Odontopediatria",
-      "Atendimento especial para crianças em ambiente lúdico e acolhedor, com profissionais especializados em pacientes pequenos.",
-      "",
-    ],
-  ];
-
-  const features = [
-    [
-      "🧠",
-      "Diagnóstico 3D preciso",
-      "Tomografia computadorizada cone-beam para planejamento cirúrgico e implantológico com 0,1mm de precisão.",
-    ],
-    [
-      "📡",
-      "Scanner intraoral digital",
-      "Moldagens digitais sem pasta, com envio instantâneo ao laboratório — mais conforto, mais precisão.",
-    ],
-    [
-      "😌",
-      "Sedação consciente",
-      "Para pacientes ansiosos: sedação com óxido nitroso para um atendimento tranquilo e seguro.",
-    ],
-    [
-      "🏭",
-      "Laboratório próprio digital",
-      "Próteses e restaurações confeccionadas in-house com fresagem CAD/CAM para entrega no mesmo dia.",
-    ],
-    [
-      "🧪",
-      "Protocolo de biossegurança",
-      "Esterilização e descarte certificados, autoclave classe B e controle rigoroso de infecção cruzada.",
-    ],
-    [
-      "📞",
-      "Acompanhamento pós-tratamento",
-      "Protocolo de follow-up dedicado com consultas de controle e canal de atendimento prioritário.",
-    ],
-  ];
-
-  const steps = [
-    [
-      "Agendamento",
-      "Marque sua consulta pelo site, WhatsApp ou telefone. Escolha o horário que melhor se adapta à sua rotina.",
-    ],
-    [
-      "Avaliação",
-      "Consulta inicial completa com exame clínico, radiografias e diagnóstico digital para mapeamento do seu caso.",
-    ],
-    [
-      "Planejamento",
-      "Elaboração do plano de tratamento personalizado com apresentação visual do resultado esperado e opções financeiras.",
-    ],
-    [
-      "Tratamento",
-      "Execução com técnicas modernas, conforto máximo e acompanhamento em cada etapa do seu tratamento.",
-    ],
-    [
-      "Acompanhamento",
-      "Retornos periódicos, manutenção preventiva e canal exclusivo para dúvidas — porque seu sorriso é um investimento contínuo.",
-    ],
-  ];
-
-  const testimonials = [
-    [
-      "Fiz lentes de contato dental e o resultado superou todas as minhas expectativas. O Dr. Rafael planejou cada detalhe, o sorriso ficou completamente natural. Mudou minha autoestima de forma incrível.",
-      "Mariana Ferreira",
-      "Lentes de Contato Dental",
-      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=80&h=80&fit=crop&auto=format",
-    ],
-    [
-      "Tinha muito medo de fazer implante, mas a equipe da OdontoPrime me deixou tranquilo desde o primeiro momento. O procedimento foi sem dor e o resultado final é impecável. Recomendo demais!",
-      "Carlos Eduardo",
-      "Implante Dentário",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&auto=format",
-    ],
-    [
-      "Dois anos de tratamento com a Dra. Carolina e o resultado valeu cada consulta. Ambiente impecável, atendimento humanizado e profissionais que realmente se importam com o paciente.",
-      "Patrícia Almeida",
-      "Ortodontia",
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&auto=format",
-    ],
-    [
-      "Fiz o clareamento antes do meu casamento e os dentes ficaram visivelmente mais brancos em apenas uma sessão. Atendimento profissional e cuidadoso. Já indiquei para toda a família.",
-      "Roberto Nascimento",
-      "Clareamento Dental",
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&auto=format",
-    ],
-    [
-      "Sempre tive fobia de dentista, mas aqui foi completamente diferente. O Dr. Bruno explicou cada passo, não senti dor nenhuma e ainda me ligaram depois para saber como eu estava.",
-      "Fernanda Costa",
-      "Tratamento de Canal",
-      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=80&h=80&fit=crop&auto=format",
-    ],
-  ];
-
-  const beforeAfter = [
-    [
-      "Lentes de Contato Dental",
-      "https://images.unsplash.com/photo-1663182234283-28941e7612da?w=700&h=500&fit=crop&auto=format",
-      "https://images.unsplash.com/photo-1654373535457-383a0a4d00f9?w=700&h=500&fit=crop&auto=format",
-    ],
-    [
-      "Clareamento Dental",
-      "https://images.unsplash.com/photo-1663182234283-28941e7612da?w=700&h=500&fit=crop&auto=format&sat=-80",
-      "https://images.unsplash.com/photo-1489278353717-f64c6ee8a4d2?w=700&h=500&fit=crop&auto=format",
-    ],
-  ];
-
-  const team = [
-    [
-      "Dr. Rafael Mendes",
-      "Diretor Clínico",
-      "Implantodontia & Cirurgia",
-      "CRO-SP 34.521",
-      "https://images.unsplash.com/photo-1588776813941-dcf9c55e84d2?w=400&h=500&fit=crop&auto=format",
-    ],
-    [
-      "Dra. Carolina Lima",
-      "Especialista",
-      "Ortodontia & Estética",
-      "CRO-SP 41.087",
-      "https://images.unsplash.com/photo-1683349370055-7eba66a404c6?w=400&h=500&fit=crop&auto=format",
-    ],
-    [
-      "Dr. André Santos",
-      "Especialista",
-      "Endodontia & Periodontia",
-      "CRO-SP 29.340",
-      "https://images.unsplash.com/photo-1645066928295-2506defde470?w=400&h=500&fit=crop&auto=format",
-    ],
-    [
-      "Dr. Bruno Oliveira",
-      "Especialista",
-      "Odontopediatria",
-      "CRO-SP 52.019",
-      "https://images.unsplash.com/photo-1758691463582-11aea602cd4a?w=400&h=500&fit=crop&auto=format",
-    ],
-  ];
-
-  const faqs = [
-    [
-      "A avaliação inicial é gratuita?",
-      "Sim! A primeira consulta de avaliação é completamente gratuita. Nela realizamos exame clínico, analisamos suas necessidades e apresentamos o plano de tratamento personalizado.",
-    ],
-    [
-      "Vocês atendem planos odontológicos?",
-      "Atendemos os principais convênios odontológicos do mercado. Entre em contato para confirmar a cobertura do seu plano e os procedimentos incluídos.",
-    ],
-    [
-      "Quanto tempo leva um tratamento com implante?",
-      "Em média de 3 a 6 meses, considerando o período de osseointegração. Em casos selecionados é possível realizar carga imediata, com prótese no mesmo dia.",
-    ],
-    [
-      "O clareamento dental faz mal aos dentes?",
-      "Não. Quando realizado por profissionais com produtos regulamentados, o clareamento é seguro e não danifica o esmalte dental.",
-    ],
-    [
-      "Como é feito o agendamento de consultas?",
-      "Você pode agendar pelo formulário do site, pelo WhatsApp ou por telefone. Confirmamos o horário em até 1 hora útil.",
-    ],
-    [
-      "Atendem crianças? A partir de que idade?",
-      "Sim, nossa equipe de odontopediatria atende a partir do nascimento do primeiro dentinho, por volta dos 6 meses de idade.",
-    ],
-    [
-      "Oferecem financiamento para tratamentos?",
-      "Sim. Trabalhamos com parcelamento em até 18x no cartão e opções de financiamento próprio conforme análise.",
-    ],
-    [
-      "Como é o protocolo de higienização da clínica?",
-      "Seguimos protocolo rigoroso de biossegurança com autoclave classe B, materiais descartáveis e controle certificado de infecção cruzada.",
-    ],
-  ];
-
-  /* ------------------ Utilitários ------------------ */
   const $ = (sel, ctx) => (ctx || document).querySelector(sel);
-  const el = (tag, cls, html) => {
-    const n = document.createElement(tag);
-    if (cls) n.className = cls;
-    if (html !== undefined) n.innerHTML = html;
-    return n;
-  };
-  const render = (target, items, build) => {
-    const host = $(target);
-    if (!host) return;
-    const frag = document.createDocumentFragment();
-    items.forEach((item, i) => frag.appendChild(build(item, i)));
-    host.appendChild(frag);
-  };
+  const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+  const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
-  /* ------------------ Conteúdo ------------------ */
-  render("#benefitsGrid", benefits, ([ico, title, text]) =>
-    el(
-      "article",
-      "card reveal",
-      `<div class="card__ico" aria-hidden="true">${ico}</div><h3>${title}</h3><p>${text}</p>`,
-    ),
-  );
+  function init() {
+    const ac = new AbortController();
+    const { signal } = ac;
+    const on = (target, type, handler, options) =>
+      target.addEventListener(type, handler, Object.assign({}, options, { signal }));
+    const cleanups = [];
 
-  render("#timeline", timeline, ([year, title, text]) =>
-    el("li", "reveal", `<span class="year">${year}</span><h4>${title}</h4><p>${text}</p>`),
-  );
+    /* ------------------ Navbar + menu mobile ------------------ */
+    const nav = $("#nav");
+    const burger = $("#burger");
+    const mobileMenu = $("#mobileMenu");
 
-  render("#servicesGrid", services, ([ico, title, text, badge]) =>
-    el(
-      "article",
-      "card card--service reveal",
-      `${badge ? `<span class="badge ${badge === "Premium" ? "badge--gold" : ""}">${badge}</span>` : ""}
-       <div class="card__ico" aria-hidden="true">${ico}</div>
-       <h3>${title}</h3><p>${text}</p>
-       <a class="card__link" href="#agendar">Saiba mais <span aria-hidden="true">→</span></a>`,
-    ),
-  );
-
-  render("#featuresGrid", features, ([ico, title, text]) =>
-    el(
-      "article",
-      "feature reveal",
-      `<div class="feature__ico" aria-hidden="true">${ico}</div><div><h3>${title}</h3><p>${text}</p></div>`,
-    ),
-  );
-
-  render("#steps", steps, ([title, text], i) =>
-    el(
-      "li",
-      "reveal",
-      `<span class="num" aria-hidden="true">${i + 1}</span><h3>${title}</h3><p>${text}</p>`,
-    ),
-  );
-
-  render("#teamGrid", team, ([name, role, area, cro, img]) =>
-    el(
-      "article",
-      "member reveal",
-      `<div class="member__photo"><img src="${img}" alt="${name}" width="400" height="500" loading="lazy" /><span class="member__cro">${cro}</span></div>
-       <div class="member__body"><strong>${name}</strong><p class="member__role">${role}</p><small>${area}</small></div>`,
-    ),
-  );
-
-  render("#testimonials", testimonials, ([text, name, treatment, img]) =>
-    el(
-      "article",
-      "quote",
-      `<div class="quote__inner">
-         <span class="stars" aria-label="Nota 5 de 5">★★★★★</span>
-         <p>"${text}"</p>
-         <div class="quote__author"><img src="${img}" alt="${name}" width="80" height="80" loading="lazy" /><div><strong>${name}</strong><small>${treatment}</small></div></div>
-       </div>`,
-    ),
-  );
-
-  render("#baGrid", beforeAfter, ([caption, before, after]) =>
-    el(
-      "article",
-      "ba reveal",
-      `<div class="ba__viewport" role="group" aria-label="Comparação antes e depois — ${caption}">
-         <img class="ba__before" src="${before}" alt="Antes do tratamento — ${caption}" loading="lazy" />
-         <img class="ba__after" src="${after}" alt="Depois do tratamento — ${caption}" loading="lazy" />
-         <span class="ba__handle" aria-hidden="true"></span>
-         <span class="ba__tag ba__tag--left">Antes</span>
-         <span class="ba__tag ba__tag--right">Depois</span>
-       </div>
-       <p class="ba__caption">${caption}</p>`,
-    ),
-  );
-
-  render("#faqList", faqs, ([q, a], i) => {
-    const item = el("div", "faq__item");
-    item.innerHTML = `<h3><button class="faq__q" aria-expanded="false" aria-controls="faq-a-${i}" id="faq-q-${i}">${q}<span aria-hidden="true">+</span></button></h3>
-       <div class="faq__a" id="faq-a-${i}" role="region" aria-labelledby="faq-q-${i}"><p>${a}</p></div>`;
-    return item;
-  });
-
-  /* ------------------ Navbar ------------------ */
-  const nav = $("#nav");
-  const onScroll = () => nav.classList.toggle("is-stuck", window.scrollY > 16);
-  onScroll();
-  window.addEventListener("scroll", onScroll, { passive: true });
-
-  const burger = $("#burger");
-  const mobileMenu = $("#mobileMenu");
-  burger.addEventListener("click", () => {
-    const open = burger.getAttribute("aria-expanded") === "true";
-    burger.setAttribute("aria-expanded", String(!open));
-    mobileMenu.hidden = open;
-  });
-  mobileMenu.addEventListener("click", (e) => {
-    if (e.target.tagName === "A") {
-      burger.setAttribute("aria-expanded", "false");
-      mobileMenu.hidden = true;
+    if (nav) {
+      const onScroll = () => nav.classList.toggle("is-stuck", window.scrollY > 16);
+      onScroll();
+      on(window, "scroll", onScroll, { passive: true });
     }
-  });
 
-  /* ------------------ Reveal on scroll ------------------ */
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          io.unobserve(entry.target);
+    if (burger && mobileMenu) {
+      const setMenu = (open) => {
+        burger.setAttribute("aria-expanded", String(open));
+        burger.setAttribute("aria-label", open ? "Fechar menu" : "Abrir menu");
+        mobileMenu.hidden = !open;
+      };
+      on(burger, "click", () => setMenu(burger.getAttribute("aria-expanded") !== "true"));
+      on(mobileMenu, "click", (e) => {
+        if (e.target.closest("a")) setMenu(false);
+      });
+      on(document, "keydown", (e) => {
+        if (e.key === "Escape" && burger.getAttribute("aria-expanded") === "true") {
+          setMenu(false);
+          burger.focus();
         }
       });
-    },
-    { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
-  );
-  document.querySelectorAll(".reveal").forEach((n, i) => {
-    n.style.transitionDelay = `${Math.min(i % 4, 3) * 70}ms`;
-    io.observe(n);
-  });
-
-  /* ------------------ Slider de depoimentos ------------------ */
-  const track = $("#testimonials");
-  const dotsHost = $("#tDots");
-  let index = 0;
-
-  const perView = () => (window.innerWidth >= 900 ? 3 : window.innerWidth >= 640 ? 2 : 1);
-  const maxIndex = () => Math.max(0, testimonials.length - perView());
-
-  const buildDots = () => {
-    dotsHost.innerHTML = "";
-    for (let i = 0; i <= maxIndex(); i++) {
-      const b = el("button", "dot");
-      b.type = "button";
-      b.setAttribute("aria-label", `Ir para o depoimento ${i + 1}`);
-      b.addEventListener("click", () => goTo(i));
-      dotsHost.appendChild(b);
+      // Ao ampliar a janela para o layout desktop o menu mobile deixa de existir.
+      const desktop = window.matchMedia("(min-width: 900px)");
+      on(desktop, "change", (e) => {
+        if (e.matches) setMenu(false);
+      });
     }
-  };
-  const update = () => {
-    const step = 100 / perView();
-    track.style.transform = `translateX(-${index * step}%)`;
-    Array.from(dotsHost.children).forEach((d, i) => d.classList.toggle("is-active", i === index));
-  };
-  const goTo = (i) => {
-    index = Math.min(Math.max(i, 0), maxIndex());
-    update();
-  };
 
-  buildDots();
-  update();
-  $("#tPrev").addEventListener("click", () => goTo(index - 1));
-  $("#tNext").addEventListener("click", () => goTo(index + 1));
-  window.addEventListener("resize", () => {
-    index = Math.min(index, maxIndex());
-    buildDots();
-    update();
-  });
+    /* ------------------ Reveal on scroll ------------------ */
+    const revealEls = $$(".reveal");
+    const timers = [];
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const target = entry.target;
+            target.classList.add("is-visible");
+            io.unobserve(target);
+            // O atraso escalonado só vale para a entrada; depois é removido para
+            // não atrasar as transições de hover do próprio elemento.
+            timers.push(setTimeout(() => (target.style.transitionDelay = ""), 1100));
+          });
+        },
+        { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+      );
+      revealEls.forEach((n, i) => {
+        n.style.transitionDelay = `${Math.min(i % 4, 3) * 70}ms`;
+        io.observe(n);
+      });
+      cleanups.push(() => io.disconnect());
+    } else {
+      revealEls.forEach((n) => n.classList.add("is-visible"));
+    }
+    cleanups.push(() => timers.forEach(clearTimeout));
 
-  // Suporte a arrastar/deslizar (touch e mouse) sem remover os botões/dots existentes
-  let dragging = false;
-  let dragStartX = 0;
-  let dragDeltaX = 0;
-  let trackWidth = 0;
+    /* ------------------ Slider de depoimentos ------------------ */
+    const track = $("#testimonials");
+    const dotsHost = $("#tDots");
+    const prevBtn = $("#tPrev");
+    const nextBtn = $("#tNext");
 
-  track.addEventListener("pointerdown", (e) => {
-    dragging = true;
-    dragStartX = e.clientX;
-    dragDeltaX = 0;
-    trackWidth = track.getBoundingClientRect().width || 1;
-    track.style.transition = "none";
-    track.setPointerCapture(e.pointerId);
-  });
-  track.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    dragDeltaX = e.clientX - dragStartX;
-    const step = 100 / perView();
-    const basePercent = -index * step;
-    const deltaPercent = (dragDeltaX / trackWidth) * 100;
-    track.style.transform = `translateX(${basePercent + deltaPercent}%)`;
-  });
-  const endDrag = () => {
-    if (!dragging) return;
-    dragging = false;
-    track.style.transition = "";
-    const threshold = trackWidth * 0.18;
-    if (dragDeltaX < -threshold) goTo(index + 1);
-    else if (dragDeltaX > threshold) goTo(index - 1);
-    else update();
-  };
-  track.addEventListener("pointerup", endDrag);
-  track.addEventListener("pointercancel", endDrag);
+    if (track && dotsHost && prevBtn && nextBtn) {
+      const slides = track.children.length;
+      let index = 0;
+      let dotCount = -1;
 
-  /* ------------------ Antes e depois ------------------ */
-  document.querySelectorAll(".ba__viewport").forEach((view) => {
-    const after = $(".ba__after", view);
-    const handle = $(".ba__handle", view);
-    let dragging = false;
+      $$("img", track).forEach((img) => (img.draggable = false));
 
-    const move = (clientX) => {
-      const rect = view.getBoundingClientRect();
-      const pct = Math.min(Math.max(((clientX - rect.left) / rect.width) * 100, 2), 98);
-      after.style.clipPath = `inset(0 0 0 ${pct}%)`;
-      handle.style.left = `${pct}%`;
+      const perView = () => (window.innerWidth >= 900 ? 3 : window.innerWidth >= 640 ? 2 : 1);
+      const maxIndex = () => Math.max(0, slides - perView());
+
+      const buildDots = () => {
+        const count = maxIndex() + 1;
+        if (count === dotCount) return;
+        dotCount = count;
+        dotsHost.textContent = "";
+        for (let i = 0; i < count; i++) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "dot";
+          b.setAttribute("aria-label", `Ir para o depoimento ${i + 1}`);
+          b.addEventListener("click", () => goTo(i), { signal });
+          dotsHost.appendChild(b);
+        }
+      };
+      const update = () => {
+        track.style.transform = `translateX(-${index * (100 / perView())}%)`;
+        Array.from(dotsHost.children).forEach((d, i) => {
+          d.classList.toggle("is-active", i === index);
+          if (i === index) d.setAttribute("aria-current", "true");
+          else d.removeAttribute("aria-current");
+        });
+        prevBtn.disabled = index <= 0;
+        nextBtn.disabled = index >= maxIndex();
+      };
+      const goTo = (i) => {
+        index = clamp(i, 0, maxIndex());
+        update();
+      };
+
+      buildDots();
+      update();
+      on(prevBtn, "click", () => goTo(index - 1));
+      on(nextBtn, "click", () => goTo(index + 1));
+      on(window, "resize", () => {
+        index = Math.min(index, maxIndex());
+        buildDots();
+        update();
+      });
+
+      // Arrastar/deslizar (touch e mouse); botões e dots continuam disponíveis.
+      let dragging = false;
+      let startX = 0;
+      let deltaX = 0;
+      let width = 1;
+
+      on(track, "pointerdown", (e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        dragging = true;
+        startX = e.clientX;
+        deltaX = 0;
+        width = track.getBoundingClientRect().width || 1;
+        track.style.transition = "none";
+        try {
+          track.setPointerCapture(e.pointerId);
+        } catch {
+          /* ponteiro já encerrado */
+        }
+      });
+      on(track, "pointermove", (e) => {
+        if (!dragging) return;
+        deltaX = e.clientX - startX;
+        const base = -index * (100 / perView());
+        track.style.transform = `translateX(${base + (deltaX / width) * 100}%)`;
+      });
+      const endDrag = () => {
+        if (!dragging) return;
+        dragging = false;
+        track.style.transition = "";
+        const threshold = width * 0.18;
+        if (deltaX < -threshold) goTo(index + 1);
+        else if (deltaX > threshold) goTo(index - 1);
+        else update();
+      };
+      on(track, "pointerup", endDrag);
+      on(track, "pointercancel", endDrag);
+    }
+
+    /* ------------------ Antes e depois ------------------ */
+    $$(".ba__viewport").forEach((view) => {
+      const after = $(".ba__after", view);
+      const handle = $(".ba__handle", view);
+      if (!after || !handle) return;
+      let dragging = false;
+      let pos = 50;
+
+      $$("img", view).forEach((img) => (img.draggable = false));
+
+      const setPos = (pct) => {
+        pos = clamp(pct, 2, 98);
+        after.style.clipPath = `inset(0 0 0 ${pos}%)`;
+        handle.style.left = `${pos}%`;
+        const p = Math.round(pos);
+        handle.setAttribute("aria-valuenow", String(p));
+        handle.setAttribute("aria-valuetext", `${p}% antes, ${100 - p}% depois`);
+      };
+      const fromPointer = (clientX) => {
+        const rect = view.getBoundingClientRect();
+        setPos(((clientX - rect.left) / rect.width) * 100);
+      };
+
+      on(view, "pointerdown", (e) => {
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        dragging = true;
+        try {
+          view.setPointerCapture(e.pointerId);
+        } catch {
+          /* ponteiro já encerrado */
+        }
+        fromPointer(e.clientX);
+      });
+      on(view, "pointermove", (e) => {
+        if (dragging) fromPointer(e.clientX);
+      });
+      const stop = () => (dragging = false);
+      on(view, "pointerup", stop);
+      on(view, "pointercancel", stop);
+
+      // Acesso por teclado: o divisor é um slider focável.
+      on(handle, "keydown", (e) => {
+        const steps = {
+          ArrowLeft: -5,
+          ArrowDown: -5,
+          ArrowRight: 5,
+          ArrowUp: 5,
+          PageDown: -10,
+          PageUp: 10,
+        };
+        if (e.key in steps) setPos(pos + steps[e.key]);
+        else if (e.key === "Home") setPos(0);
+        else if (e.key === "End") setPos(100);
+        else return;
+        e.preventDefault();
+      });
+    });
+
+    /* ------------------ FAQ (acordeão) ------------------ */
+    const faqList = $("#faqList");
+    if (faqList) {
+      const closeItem = (item) => {
+        item.classList.remove("is-open");
+        $(".faq__a", item).style.maxHeight = "";
+        $(".faq__q", item).setAttribute("aria-expanded", "false");
+      };
+      on(faqList, "click", (e) => {
+        const btn = e.target.closest(".faq__q");
+        if (!btn) return;
+        const item = btn.closest(".faq__item");
+        const wasOpen = item.classList.contains("is-open");
+        $$(".faq__item.is-open", faqList).forEach(closeItem);
+        if (!wasOpen) {
+          item.classList.add("is-open");
+          $(".faq__a", item).style.maxHeight = `${$(".faq__a", item).scrollHeight}px`;
+          btn.setAttribute("aria-expanded", "true");
+        }
+      });
+      // Reajusta a altura do painel aberto quando o texto reflui (resize/rotação).
+      on(window, "resize", () => {
+        const open = $(".faq__item.is-open .faq__a", faqList);
+        if (open) open.style.maxHeight = `${open.scrollHeight}px`;
+      });
+    }
+
+    /* ------------------ Aviso de portfólio ------------------ */
+    const notice = $("#portfolio-notice");
+    const noticeClose = $("[data-portfolio-notice-close]");
+    if (notice && noticeClose) {
+      // `hidden` (em vez de remover o nó) mantém o DOM gerenciado pelo React intacto.
+      on(noticeClose, "click", () => {
+        notice.hidden = true;
+      });
+    }
+
+    /* ------------------ Formulário ------------------ */
+    const form = $("#contactForm");
+    if (form) {
+      const note = $("#formNote");
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const submitLabel = submitBtn ? submitBtn.textContent : "";
+      let sending = false;
+      let inflight = null;
+      cleanups.push(() => inflight && inflight.abort());
+
+      const rules = {
+        nome: (v) => (v.trim().length < 3 ? "Informe seu nome completo." : ""),
+        telefone: (v) => {
+          const d = v.replace(/\D/g, "");
+          return d.length < 10 || d.length > 11 ? "Informe um telefone válido com DDD." : "";
+        },
+        email: (v) =>
+          /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? "" : "Informe um e-mail válido.",
+      };
+
+      const setError = (input, message) => {
+        const field = input.closest(".field");
+        field.classList.toggle("has-error", Boolean(message));
+        input.setAttribute("aria-invalid", message ? "true" : "false");
+        $(`[data-error-for="${input.name}"]`, field).textContent = message || "";
+        return !message;
+      };
+      const validateField = (name) => setError(form[name], rules[name](form[name].value));
+      const validate = () => {
+        // Valida todos (sem curto-circuito) e devolve o primeiro campo inválido.
+        const invalid = Object.keys(rules).filter((name) => !validateField(name));
+        return invalid.length ? form[invalid[0]] : null;
+      };
+      const say = (message, isError) => {
+        note.textContent = message;
+        note.classList.toggle("form-note--error", Boolean(isError));
+      };
+
+      // Máscara simples de telefone brasileiro
+      on(form.telefone, "input", (e) => {
+        const d = e.target.value.replace(/\D/g, "").slice(0, 11);
+        e.target.value =
+          d.length > 10
+            ? `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+            : d.length > 6
+              ? `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
+              : d.length > 2
+                ? `(${d.slice(0, 2)}) ${d.slice(2)}`
+                : d;
+      });
+
+      // Valida cada campo ao sair dele, mas só depois de preenchido ou de já ter erro.
+      Object.keys(rules).forEach((name) => {
+        on(form[name], "blur", () => {
+          if (
+            form[name].value.trim() ||
+            form[name].closest(".field").classList.contains("has-error")
+          ) {
+            validateField(name);
+          }
+        });
+        on(form[name], "input", () => {
+          if (form[name].closest(".field").classList.contains("has-error")) validateField(name);
+        });
+      });
+
+      on(form, "submit", async (e) => {
+        e.preventDefault();
+        if (sending) return;
+        say("", false);
+        const firstInvalid = validate();
+        if (firstInvalid) {
+          firstInvalid.focus();
+          return;
+        }
+
+        sending = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Enviando…";
+        form.setAttribute("aria-busy", "true");
+        inflight = new AbortController();
+        const timeout = setTimeout(() => inflight.abort(), FORM_TIMEOUT_MS);
+
+        try {
+          const res = await fetch(FORM_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({
+              nome: form.nome.value,
+              telefone: form.telefone.value,
+              email: form.email.value,
+              mensagem: form.mensagem.value,
+              website: form.website ? form.website.value : "",
+            }),
+            signal: inflight.signal,
+          });
+          const data = await res.json().catch(() => ({}));
+
+          if (res.ok && data.ok) {
+            say(
+              data.demo
+                ? "Solicitação recebida em modo demonstração — nenhum dado foi enviado nem salvo."
+                : "Solicitação enviada! Entraremos em contato em breve.",
+              false,
+            );
+            form.reset();
+            Object.keys(rules).forEach((name) => setError(form[name], ""));
+          } else if (res.status === 422 && data.fields) {
+            let first = null;
+            Object.keys(rules).forEach((name) => {
+              if (data.fields[name]) {
+                setError(form[name], data.fields[name]);
+                first = first || form[name];
+              }
+            });
+            if (first) first.focus();
+            say("Revise os campos destacados e tente novamente.", true);
+          } else {
+            say("Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.", true);
+          }
+        } catch {
+          say("Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.", true);
+        } finally {
+          clearTimeout(timeout);
+          inflight = null;
+          sending = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = submitLabel;
+          form.removeAttribute("aria-busy");
+        }
+      });
+    }
+
+    window.__odontoprimeReady = true;
+
+    return () => {
+      ac.abort();
+      cleanups.forEach((fn) => fn());
+      window.__odontoprimeReady = false;
     };
-
-    view.addEventListener("pointerdown", (e) => {
-      dragging = true;
-      view.setPointerCapture(e.pointerId);
-      move(e.clientX);
-    });
-    view.addEventListener("pointermove", (e) => {
-      if (dragging) move(e.clientX);
-    });
-    view.addEventListener("pointerup", () => {
-      dragging = false;
-    });
-    view.addEventListener("pointercancel", () => {
-      dragging = false;
-    });
-  });
-
-  /* ------------------ FAQ (acordeão) ------------------ */
-  $("#faqList").addEventListener("click", (e) => {
-    const btn = e.target.closest(".faq__q");
-    if (!btn) return;
-    const item = btn.closest(".faq__item");
-    const panel = $(".faq__a", item);
-    const isOpen = item.classList.contains("is-open");
-
-    document.querySelectorAll(".faq__item.is-open").forEach((open) => {
-      open.classList.remove("is-open");
-      $(".faq__a", open).style.maxHeight = "";
-      $(".faq__q", open).setAttribute("aria-expanded", "false");
-    });
-
-    if (!isOpen) {
-      item.classList.add("is-open");
-      panel.style.maxHeight = `${panel.scrollHeight}px`;
-      btn.setAttribute("aria-expanded", "true");
-    }
-  });
-
-  /* ------------------ Aviso de portfólio ------------------ */
-  const notice = $("#portfolio-notice");
-  const noticeClose = $("[data-portfolio-notice-close]");
-  if (notice && noticeClose) {
-    noticeClose.addEventListener("click", () => notice.remove());
   }
 
-  /* ------------------ Formulário ------------------ */
-  const form = $("#contactForm");
-  const note = $("#formNote");
-
-  // Formulário de demonstração: por padrão, nenhum dado é enviado a lugar
-  // nenhum (apenas simula sucesso). Para captar leads de verdade, crie um
-  // formulário em https://formspree.io (ou um cenário/webhook no Make.com)
-  // e cole a URL do endpoint aqui.
-  const FORM_ENDPOINT = "https://hook.us2.make.com/c99eaxrmhge9ljuav0vkc9kpxs0sxs9t";
-
-  const setError = (input, message) => {
-    const field = input.closest(".field");
-    field.classList.toggle("has-error", Boolean(message));
-    $(`[data-error-for="${input.name}"]`, field).textContent = message || "";
-    return !message;
-  };
-
-  const validate = () => {
-    const nome = form.nome,
-      tel = form.telefone,
-      email = form.email;
-    const okNome = setError(nome, nome.value.trim().length < 3 ? "Informe seu nome completo." : "");
-    const digits = tel.value.replace(/\D/g, "");
-    const okTel = setError(tel, digits.length < 10 ? "Informe um telefone válido com DDD." : "");
-    const okMail = setError(
-      email,
-      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()) ? "" : "Informe um e-mail válido.",
-    );
-    return okNome && okTel && okMail;
-  };
-
-  // Máscara simples de telefone brasileiro
-  form.telefone.addEventListener("input", (e) => {
-    const d = e.target.value.replace(/\D/g, "").slice(0, 11);
-    e.target.value =
-      d.length > 10
-        ? `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
-        : d.length > 6
-          ? `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
-          : d.length > 2
-            ? `(${d.slice(0, 2)}) ${d.slice(2)}`
-            : d;
-  });
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    note.textContent = "";
-    if (!validate()) return;
-
-    if (!FORM_ENDPOINT) {
-      console.warn(
-        "[OdontoPrime] FORM_ENDPOINT não configurado — formulário em modo de demonstração, nenhum dado foi enviado. Configure em public/odontoprime/js/script.js.",
-      );
-      note.textContent =
-        "Solicitação enviada! Entraremos em contato em breve. (Modo demonstração — nenhum dado foi salvo.)";
-      form.reset();
-      return;
-    }
-
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    try {
-      const res = await fetch(FORM_ENDPOINT, {
-        method: "POST",
-        headers: { Accept: "application/json" },
-        body: new FormData(form),
-      });
-      if (res.ok) {
-        note.textContent = "Solicitação enviada! Entraremos em contato em breve.";
-        form.reset();
-      } else {
-        note.textContent = "Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.";
-      }
-    } catch {
-      note.textContent = "Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.";
-    } finally {
-      submitBtn.disabled = false;
-    }
-  });
-
-  ["nome", "telefone", "email"].forEach((name) => {
-    form[name].addEventListener("blur", () => validate());
-  });
+  window.OdontoPrime = { init };
 })();

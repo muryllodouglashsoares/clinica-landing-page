@@ -9,7 +9,8 @@
   --navy-700: #1c2a44;
   --ink: #0f172a;
   --body: #56607a;
-  --muted: #8a93a8;
+  --muted: #5f6980; /* texto secundário sobre fundo claro (contraste ≥ 4.5:1) */
+  --muted-on-dark: #9aa3b8; /* texto secundário sobre fundo escuro */
   --bg: #fbfaf7;
   --bg-tint: #f5f3ee;
   --surface: #ffffff;
@@ -18,6 +19,7 @@
   --gold: #c9a227;
   --gold-soft: #e2c877;
   --gold-tint: #f7efd8;
+  --gold-text: #8a6d0b; /* dourado legível como texto sobre fundo claro */
 
   --radius-sm: 10px;
   --radius: 16px;
@@ -536,7 +538,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-text);
 }
 .eyebrow--light {
   color: var(--gold-soft);
@@ -758,7 +760,7 @@ button {
 .timeline .year {
   display: inline-block;
   font-weight: 800;
-  color: var(--gold);
+  color: var(--gold-text);
   letter-spacing: 0.04em;
   margin-bottom: 8px;
 }
@@ -981,7 +983,7 @@ button {
   aspect-ratio: 7 / 5;
   overflow: hidden;
   user-select: none;
-  touch-action: none;
+  touch-action: pan-y; /* permite rolar a página na vertical; o arraste horizontal move o divisor */
   cursor: ew-resize;
 }
 .ba__viewport img {
@@ -1018,6 +1020,14 @@ button {
   place-items: center;
   font-weight: 700;
   box-shadow: var(--shadow);
+}
+.ba__handle:focus-visible {
+  outline: none;
+}
+.ba__handle:focus-visible::after {
+  box-shadow:
+    0 0 0 3px var(--gold),
+    var(--shadow);
 }
 .ba__tag {
   position: absolute;
@@ -1096,7 +1106,7 @@ button {
   font-size: 1.02rem;
 }
 .member__role {
-  color: var(--gold);
+  color: var(--gold-text);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1157,7 +1167,19 @@ button {
 .faq__a {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease;
+  visibility: hidden; /* painel fechado não é lido por tecnologias assistivas */
+  transition:
+    max-height 0.4s ease,
+    visibility 0s linear 0.4s;
+}
+.faq__item.is-open .faq__a {
+  visibility: visible;
+  transition-delay: 0s;
+}
+/* Sem JavaScript o acordeão não abre: mostra todas as respostas. */
+html:not(.js) .faq__a {
+  max-height: none;
+  visibility: visible;
 }
 .faq__a p {
   padding: 0 22px 22px;
@@ -1171,13 +1193,14 @@ button {
   font-size: 0.93rem;
 }
 .faq__foot a {
-  color: var(--gold);
+  color: var(--gold-text);
   font-weight: 700;
 }
 
 /* ---------- CTA + Form ---------- */
 .cta {
   display: grid;
+  grid-template-columns: minmax(0, 1fr); /* evita que o conteúdo estique a coluna além da tela */
   gap: 40px;
 }
 .cta h2 {
@@ -1292,6 +1315,17 @@ button {
   min-height: 20px;
 }
 
+.form-note--error {
+  color: #b42318;
+}
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 /* ---------- Footer ---------- */
 .footer {
   background: var(--navy-800);
@@ -1308,7 +1342,7 @@ button {
   max-width: 34ch;
 }
 .footer__cro {
-  color: var(--muted);
+  color: var(--muted-on-dark);
   font-size: 0.8rem;
 }
 .footer__col {
@@ -1316,7 +1350,7 @@ button {
   gap: 10px;
   align-content: start;
 }
-.footer__col h4 {
+.footer__col h3 {
   color: #fff;
   font-size: 0.95rem;
   margin-bottom: 4px;
@@ -1339,7 +1373,7 @@ button {
   padding-top: 22px;
   border-top: 1px solid var(--line-dark);
   font-size: 0.8rem;
-  color: var(--muted);
+  color: var(--muted-on-dark);
 }
 
 /* ---------- Floating WhatsApp ---------- */
@@ -1363,16 +1397,21 @@ button {
 }
 
 /* ---------- Scroll animations ---------- */
-.reveal {
+.js .reveal {
   opacity: 0;
   transform: translateY(28px);
   transition:
     opacity 0.7s ease,
     transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
-.reveal.is-visible {
+.js .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+.reveal {
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .reveal--delay {
   transition-delay: 0.12s;
@@ -1386,9 +1425,21 @@ button {
   html {
     scroll-behavior: auto;
   }
-  .reveal {
+  .js .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+@media print {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .nav,
+  .whats,
+  .portfolio-notice {
+    display: none !important;
   }
 }
 
@@ -1620,5 +1671,44 @@ button {
   }
   .nav__mobile {
     max-height: calc(100vh - 64px);
+  }
+}
+
+/* ============ Acessibilidade e estados ============ */
+.skip-link {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--navy-900);
+  color: #fff;
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+.skip-link:focus {
+  transform: none;
+}
+/* `display` nas classes abaixo anula o atributo [hidden]; restaura o comportamento esperado. */
+.nav__mobile[hidden],
+.portfolio-notice[hidden] {
+  display: none;
+}
+.circle-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  border-color: var(--line);
+}
+.btn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+/* Sem espaço para o CTA ao lado do logo e do menu: ele continua no menu mobile. */
+@media (max-width: 349px) {
+  .nav__actions > .btn {
+    display: none;
   }
 }

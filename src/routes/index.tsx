@@ -1,155 +1,140 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
-const FAQS = [
-  [
-    "A avaliação inicial é gratuita?",
-    "Sim! A primeira consulta de avaliação é completamente gratuita. Nela realizamos exame clínico, analisamos suas necessidades e apresentamos o plano de tratamento personalizado.",
-  ],
-  [
-    "Vocês atendem planos odontológicos?",
-    "Atendemos os principais convênios odontológicos do mercado. Entre em contato para confirmar a cobertura do seu plano e os procedimentos incluídos.",
-  ],
-  [
-    "Quanto tempo leva um tratamento com implante?",
-    "Em média de 3 a 6 meses, considerando o período de osseointegração. Em casos selecionados é possível realizar carga imediata, com prótese no mesmo dia.",
-  ],
-  [
-    "O clareamento dental faz mal aos dentes?",
-    "Não. Quando realizado por profissionais com produtos regulamentados, o clareamento é seguro e não danifica o esmalte dental.",
-  ],
-  [
-    "Como é feito o agendamento de consultas?",
-    "Você pode agendar pelo formulário do site, pelo WhatsApp ou por telefone. Confirmamos o horário em até 1 hora útil.",
-  ],
-  [
-    "Atendem crianças? A partir de que idade?",
-    "Sim, nossa equipe de odontopediatria atende a partir do nascimento do primeiro dentinho, por volta dos 6 meses de idade.",
-  ],
-  [
-    "Oferecem financiamento para tratamentos?",
-    "Sim. Trabalhamos com parcelamento em até 18x no cartão e opções de financiamento próprio conforme análise.",
-  ],
-  [
-    "Como é o protocolo de higienização da clínica?",
-    "Seguimos protocolo rigoroso de biossegurança com autoclave classe B, materiais descartáveis e controle certificado de infecção cruzada.",
-  ],
-] as const;
+import {
+  HERO_IMAGE,
+  OG_IMAGE,
+  PHONE_DISPLAY,
+  PHONE_TEL,
+  SITE_URL,
+  WHATSAPP_URL,
+  buildJsonLd,
+  renderSections,
+} from "../content/odontoprime";
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Dentist",
-      "@id": "https://clinica-landing-page.muryllodouglash-soares.workers.dev/#clinica",
-      name: "OdontoPrime",
-      description:
-        "Clínica odontológica premium com tecnologia digital, atendimento humanizado e mais de 5.000 sorrisos transformados.",
-      url: "https://clinica-landing-page.muryllodouglash-soares.workers.dev/",
-      telephone: "+55-11-3000-1000",
-      priceRange: "$$$",
-      image:
-        "https://images.unsplash.com/photo-1489278353717-f64c6ee8a4d2?w=1200&h=630&fit=crop&auto=format",
-      address: {
-        "@type": "PostalAddress",
-        streetAddress: "Av. Paulista, 1000",
-        addressLocality: "São Paulo",
-        addressRegion: "SP",
-        addressCountry: "BR",
-      },
-      sameAs: ["https://wa.me/5511930001000"],
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: FAQS.map(([question, answer]) => ({
-        "@type": "Question",
-        name: question,
-        acceptedAnswer: { "@type": "Answer", text: answer },
-      })),
-    },
-  ],
-};
+const TITLE = "OdontoPrime — Clínica Odontológica Premium em São Paulo";
+const DESCRIPTION =
+  "Clínica odontológica premium com tecnologia digital, atendimento humanizado e +5.000 sorrisos transformados. Agende sua avaliação gratuita.";
+const SCRIPT_SRC = "/odontoprime/js/script.js";
+
+// Marca o <html> com a classe "js" antes do primeiro paint (as animações de
+// "reveal" só escondem o conteúdo quando há JavaScript). Se o script.js não
+// inicializar em 5 s, a classe é removida e todo o conteúdo fica visível.
+const JS_FLAG_SNIPPET =
+  "document.documentElement.classList.add('js');" +
+  "setTimeout(function(){if(!window.__odontoprimeReady)document.documentElement.classList.remove('js')},5000);";
+
+// Escapa "<" para que o JSON nunca possa fechar a tag <script>.
+const JSON_LD = JSON.stringify(buildJsonLd()).replace(/</g, "\\u003c");
+
+declare global {
+  interface Window {
+    OdontoPrime?: { init: () => () => void };
+    __odontoprimeReady?: boolean;
+  }
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "OdontoPrime — Clínica Odontológica Premium em São Paulo" },
-      {
-        name: "description",
-        content:
-          "Clínica odontológica premium com tecnologia digital, atendimento humanizado e +5.000 sorrisos transformados. Agende sua avaliação gratuita.",
-      },
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
       { property: "og:title", content: "OdontoPrime — Sorrisos que Transformam Vidas" },
       {
         property: "og:description",
         content:
           "Cuidado odontológico de excelência com tecnologia de ponta e atendimento humanizado.",
       },
-      {
-        property: "og:image",
-        content:
-          "https://images.unsplash.com/photo-1489278353717-f64c6ee8a4d2?w=1200&h=630&fit=crop&auto=format",
-      },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:alt", content: "Paciente sorrindo após tratamento na OdontoPrime" },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
+      { property: "og:locale", content: "pt_BR" },
+      { property: "og:site_name", content: "OdontoPrime" },
+      { property: "og:url", content: `${SITE_URL}/` },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "OdontoPrime — Sorrisos que Transformam Vidas" },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
-      { rel: "canonical", href: "/" },
+      { rel: "canonical", href: `${SITE_URL}/` },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
+      { rel: "preconnect", href: "https://images.unsplash.com" },
+      { rel: "preload", as: "image", href: HERO_IMAGE, fetchPriority: "high" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap",
       },
       { rel: "stylesheet", href: "/odontoprime/css/style.css" },
     ],
+    scripts: [{ children: JS_FLAG_SNIPPET }],
   }),
   component: Index,
 });
 
-// Conteúdo real da landing page, renderizado no servidor (sem redirecionamento).
-// O HTML/CSS abaixo vem do design original em /public/odontoprime; o script.js
-// (carregado via <script defer>) cuida das interações client-side: menu mobile,
-// slider de depoimentos, antes/depois, FAQ, listas geradas dinamicamente e envio
-// do formulário. Ver AGENTS.md / README para o racional dessa decisão.
+// Carrega o script.js uma única vez (a tag permanece no documento) e resolve
+// quando `window.OdontoPrime` estiver disponível.
+function loadScript(): Promise<void> {
+  if (window.OdontoPrime) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    let tag = document.querySelector<HTMLScriptElement>("script[data-odontoprime]");
+    if (!tag) {
+      tag = document.createElement("script");
+      tag.src = SCRIPT_SRC;
+      tag.async = true;
+      tag.dataset.odontoprime = "";
+      document.body.appendChild(tag);
+    }
+    tag.addEventListener("load", () => resolve(), { once: true });
+    tag.addEventListener("error", () => reject(new Error(`Falha ao carregar ${SCRIPT_SRC}`)), {
+      once: true,
+    });
+  });
+}
+
+// O conteúdo da landing page é HTML renderizado no servidor (BODY_HTML), com as
+// listas geradas a partir de src/content/odontoprime.ts (fonte única de dados).
+// O script.js (CSS/JS puro, sem dependências) só adiciona interações e devolve
+// uma função de limpeza, chamada quando a rota é desmontada (Strict Mode incluso).
 function Index() {
-  const scriptLoaded = useRef(false);
-
   useEffect(() => {
-    if (scriptLoaded.current) return;
-    scriptLoaded.current = true;
+    let cancelled = false;
+    let destroy: (() => void) | undefined;
 
-    const script = document.createElement("script");
-    script.src = "/odontoprime/js/script.js";
-    script.defer = true;
-    document.body.appendChild(script);
+    loadScript()
+      .then(() => {
+        if (!cancelled) destroy = window.OdontoPrime?.init();
+      })
+      .catch((error) => console.error(error));
 
     return () => {
-      document.body.removeChild(script);
+      cancelled = true;
+      destroy?.();
     };
   }, []);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON_LD }} />
+      <a className="skip-link" href="#conteudo">
+        Ir para o conteúdo
+      </a>
       <div
         id="portfolio-notice"
         className="portfolio-notice"
         role="note"
         aria-label="Aviso de portfólio: projeto fictício, nenhum dado real de saúde é coletado ou processado"
       >
-        <span>🧪 Projeto de portfólio — dados fictícios</span>
+        <span>
+          <span aria-hidden="true">🧪</span> Projeto de portfólio — dados fictícios
+        </span>
         <button
           type="button"
           className="portfolio-notice__close"
           data-portfolio-notice-close
           aria-label="Fechar aviso"
         >
-          ×
+          <span aria-hidden="true">×</span>
         </button>
       </div>
       <div id="top" dangerouslySetInnerHTML={{ __html: BODY_HTML }} />
@@ -157,7 +142,8 @@ function Index() {
   );
 }
 
-const BODY_HTML = `
+function buildBodyHtml(S: ReturnType<typeof renderSections>) {
+  return `
 <!-- ============ NAVBAR ============ -->
 <header class="nav" id="nav">
   <div class="container nav__inner">
@@ -177,9 +163,9 @@ const BODY_HTML = `
     </nav>
 
     <div class="nav__actions">
-      <a class="nav__phone" href="tel:+551130001000">
+      <a class="nav__phone" href="tel:${PHONE_TEL}">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
-        (11) 3000-1000
+        ${PHONE_DISPLAY}
       </a>
       <a class="btn btn--dark btn--sm" href="#agendar">Agendar consulta</a>
       <button class="nav__burger" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
@@ -198,13 +184,13 @@ const BODY_HTML = `
   </div>
 </header>
 
-<main id="top">
+<main id="conteudo" tabindex="-1">
 
 <!-- ============ HERO ============ -->
 <section class="hero">
   <div class="container hero__grid">
     <div class="hero__copy reveal">
-      <span class="pill"><span class="pill__star">★</span> Clínica odontológica premium</span>
+      <span class="pill"><span class="pill__star" aria-hidden="true">★</span> Clínica odontológica premium</span>
       <h1 class="hero__title">Sorrisos que <br /><span class="grad">Transformam</span> Vidas.</h1>
       <p class="hero__lead">Cuidado odontológico de excelência com tecnologia de ponta, atendimento humanizado e resultados que superam expectativas.</p>
 
@@ -214,18 +200,18 @@ const BODY_HTML = `
       </div>
 
       <ul class="hero__stats">
-        <li><span class="ico">★</span><div><strong>4.9</strong><small>+1.200 avaliações</small></div></li>
-        <li><span class="ico">👥</span><div><strong>+5.000</strong><small>Pacientes atendidos</small></div></li>
-        <li><span class="ico">🏆</span><div><strong>15 anos</strong><small>De experiência</small></div></li>
-        <li><span class="ico">🔬</span><div><strong>100%</strong><small>Equipamentos digitais</small></div></li>
+        <li><span class="ico" aria-hidden="true">★</span><div><strong>4.9</strong><small>+1.200 avaliações</small></div></li>
+        <li><span class="ico" aria-hidden="true">👥</span><div><strong>+5.000</strong><small>Pacientes atendidos</small></div></li>
+        <li><span class="ico" aria-hidden="true">🏆</span><div><strong>15 anos</strong><small>De experiência</small></div></li>
+        <li><span class="ico" aria-hidden="true">🔬</span><div><strong>100%</strong><small>Equipamentos digitais</small></div></li>
       </ul>
     </div>
 
     <div class="hero__media reveal reveal--delay">
       <figure class="hero__photo">
-        <img src="https://images.unsplash.com/photo-1489278353717-f64c6ee8a4d2?w=800&h=900&fit=crop&auto=format" alt="Paciente sorrindo após tratamento na OdontoPrime" width="800" height="900" />
+        <img src="${HERO_IMAGE}" alt="Paciente sorrindo após tratamento na OdontoPrime" width="800" height="900" fetchpriority="high" decoding="async" />
         <figcaption>
-          <span class="stars" aria-label="Nota 5 de 5">★★★★★</span>
+          <span class="stars" role="img" aria-label="Nota 5 de 5"><span aria-hidden="true">★★★★★</span></span>
           <p>"Mudou completamente minha autoestima."</p>
           <small>— Ana Luiza, Implantes + Lentes de Contato</small>
         </figcaption>
@@ -252,7 +238,7 @@ const BODY_HTML = `
       <p>Nossa missão é oferecer a melhor experiência odontológica que você já teve.</p>
     </header>
 
-    <div class="grid grid--3" id="benefitsGrid"></div>
+    <div class="grid grid--3" id="benefitsGrid">${S.benefits}</div>
   </div>
 </section>
 
@@ -268,7 +254,7 @@ const BODY_HTML = `
       <li><strong>+5.000</strong><small>Pacientes atendidos</small></li>
       <li><strong>15+</strong><small>Anos de experiência</small></li>
       <li><strong>12</strong><small>Especialistas</small></li>
-      <li><strong>4.9★</strong><small>Avaliação média</small></li>
+      <li><strong>4.9<span aria-hidden="true">★</span></strong><small>Avaliação média</small></li>
     </ul>
 
     <div class="about reveal">
@@ -287,7 +273,7 @@ const BODY_HTML = `
     </div>
 
     <h3 class="timeline__title reveal">Nossa trajetória</h3>
-    <ol class="timeline" id="timeline"></ol>
+    <ol class="timeline" id="timeline">${S.timeline}</ol>
   </div>
 </section>
 
@@ -300,7 +286,7 @@ const BODY_HTML = `
       <p>Da prevenção à reabilitação total, oferecemos todas as especialidades odontológicas em um único lugar.</p>
     </header>
 
-    <div class="grid grid--4" id="servicesGrid"></div>
+    <div class="grid grid--4" id="servicesGrid">${S.services}</div>
 
     <div class="tech reveal">
       <figure class="tech__img">
@@ -324,7 +310,7 @@ const BODY_HTML = `
       <p>Investimos continuamente em tecnologia, treinamento e infraestrutura para que você receba o melhor atendimento possível.</p>
     </header>
 
-    <div class="grid grid--3" id="featuresGrid"></div>
+    <div class="grid grid--3" id="featuresGrid">${S.features}</div>
 
     <div class="center reveal"><a class="btn btn--gold" href="#agendar">Agendar avaliação gratuita <span class="btn__arrow" aria-hidden="true">→</span></a></div>
   </div>
@@ -339,7 +325,7 @@ const BODY_HTML = `
       <p>Um processo claro e transparente em 5 etapas, pensado para sua comodidade.</p>
     </header>
 
-    <ol class="steps" id="steps"></ol>
+    <ol class="steps" id="steps">${S.steps}</ol>
 
     <div class="center reveal"><a class="btn btn--dark" href="#agendar">Começar agora — avaliação gratuita <span class="btn__arrow" aria-hidden="true">→</span></a></div>
   </div>
@@ -353,8 +339,8 @@ const BODY_HTML = `
       <h2>O que nossos pacientes <br class="br-lg" />dizem sobre nós</h2>
     </header>
 
-    <div class="slider reveal">
-      <div class="slider__track" id="testimonials"></div>
+    <div class="slider reveal" role="region" aria-roledescription="carousel" aria-label="Depoimentos de pacientes">
+      <div class="slider__track" id="testimonials">${S.testimonials}</div>
       <div class="slider__nav">
         <button class="circle-btn" id="tPrev" aria-label="Depoimento anterior">←</button>
         <div class="dots" id="tDots"></div>
@@ -373,7 +359,7 @@ const BODY_HTML = `
       <p>Arraste o divisor para ver a transformação. Resultados reais de pacientes da OdontoPrime.</p>
     </header>
 
-    <div class="grid grid--2" id="baGrid"></div>
+    <div class="grid grid--2" id="baGrid">${S.beforeAfter}</div>
     <p class="disclaimer">* Resultados individuais podem variar. Imagens meramente ilustrativas.</p>
   </div>
 </section>
@@ -387,7 +373,7 @@ const BODY_HTML = `
       <p>Cada profissional foi selecionado não apenas pela excelência técnica, mas pelo compromisso com o cuidado humanizado.</p>
     </header>
 
-    <div class="grid grid--4" id="teamGrid"></div>
+    <div class="grid grid--4" id="teamGrid">${S.team}</div>
   </div>
 </section>
 
@@ -400,9 +386,9 @@ const BODY_HTML = `
       <p>Respondemos as dúvidas mais comuns dos nossos pacientes.</p>
     </header>
 
-    <div class="faq" id="faqList"></div>
+    <div class="faq" id="faqList">${S.faq}</div>
 
-    <p class="faq__foot">Não encontrou sua resposta? <a href="https://wa.me/5511930001000" target="_blank" rel="noopener">Fale conosco no WhatsApp</a></p>
+    <p class="faq__foot">Não encontrou sua resposta? <a href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Fale conosco no WhatsApp</a></p>
   </div>
 </section>
 
@@ -420,8 +406,8 @@ const BODY_HTML = `
         <li>Parcelamento disponível</li>
       </ul>
       <div class="cta__buttons">
-        <a class="btn btn--gold" href="https://wa.me/5511930001000" target="_blank" rel="noopener">Agendar pelo WhatsApp</a>
-        <a class="btn btn--outline-light" href="tel:+551130001000">(11) 3000-1000</a>
+        <a class="btn btn--gold" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">Agendar pelo WhatsApp</a>
+        <a class="btn btn--outline-light" href="tel:${PHONE_TEL}">${PHONE_DISPLAY}</a>
       </div>
     </div>
 
@@ -431,23 +417,24 @@ const BODY_HTML = `
       <form id="contactForm" novalidate>
         <div class="field">
           <label for="nome">Nome completo</label>
-          <input id="nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" required />
-          <span class="error" data-error-for="nome"></span>
+          <input id="nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" maxlength="100" aria-describedby="err-nome" required />
+          <span class="error" id="err-nome" data-error-for="nome"></span>
         </div>
         <div class="field">
           <label for="telefone">Telefone</label>
-          <input id="telefone" name="telefone" type="tel" placeholder="(11) 90000-0000" autocomplete="tel" required />
-          <span class="error" data-error-for="telefone"></span>
+          <input id="telefone" name="telefone" type="tel" inputmode="tel" placeholder="(11) 90000-0000" autocomplete="tel" maxlength="20" aria-describedby="err-telefone" required />
+          <span class="error" id="err-telefone" data-error-for="telefone"></span>
         </div>
         <div class="field">
           <label for="email">E-mail</label>
-          <input id="email" name="email" type="email" placeholder="voce@email.com" autocomplete="email" required />
-          <span class="error" data-error-for="email"></span>
+          <input id="email" name="email" type="email" placeholder="voce@email.com" autocomplete="email" maxlength="254" aria-describedby="err-email" required />
+          <span class="error" id="err-email" data-error-for="email"></span>
         </div>
         <div class="field">
           <label for="mensagem">Mensagem</label>
-          <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos sobre o tratamento desejado"></textarea>
+          <textarea id="mensagem" name="mensagem" rows="4" maxlength="1000" placeholder="Conte-nos sobre o tratamento desejado"></textarea>
         </div>
+        <div class="hp" aria-hidden="true"><label for="website">Não preencha este campo</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
         <button class="btn btn--gold btn--block" type="submit">Enviar solicitação</button>
         <p class="form-privacy">Projeto de portfólio: os dados enviados aqui são recebidos por uma automação de demonstração (Make.com → Google Sheets) e usados apenas para fins de teste, não para fins comerciais reais. Em produção, este aviso seria substituído por uma política de privacidade real, conforme a LGPD.</p>
         <p class="form-note" id="formNote" role="status" aria-live="polite"></p>
@@ -473,7 +460,7 @@ const BODY_HTML = `
     </div>
 
     <nav class="footer__col" aria-label="Institucional">
-      <h4>Clínica</h4>
+      <h3>Clínica</h3>
       <a href="#sobre">Sobre nós</a>
       <a href="#equipe">Equipe</a>
       <a href="#diferenciais">Diferenciais</a>
@@ -481,7 +468,7 @@ const BODY_HTML = `
     </nav>
 
     <nav class="footer__col" aria-label="Tratamentos">
-      <h4>Tratamentos</h4>
+      <h3>Tratamentos</h3>
       <a href="#especialidades">Implantes</a>
       <a href="#especialidades">Ortodontia</a>
       <a href="#especialidades">Clareamento</a>
@@ -489,9 +476,9 @@ const BODY_HTML = `
     </nav>
 
     <div class="footer__col">
-      <h4>Contato</h4>
-      <a href="tel:+551130001000">(11) 3000-1000</a>
-      <a href="https://wa.me/5511930001000" target="_blank" rel="noopener">WhatsApp</a>
+      <h3>Contato</h3>
+      <a href="tel:${PHONE_TEL}">${PHONE_DISPLAY}</a>
+      <a href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
       <a href="mailto:contato@odontoprime.com.br">contato@odontoprime.com.br</a>
       <address>Av. Paulista, 1000 — São Paulo/SP</address>
     </div>
@@ -503,8 +490,11 @@ const BODY_HTML = `
   </div>
 </footer>
 
-<a class="whats" href="https://wa.me/5511930001000" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+<a class="whats" href="${WHATSAPP_URL}" target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp">
   <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm5.6 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.2-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l.9 2.2c.1.2.1.4 0 .6l-.4.6-.3.3c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.7-.1l.9-1c.2-.2.4-.2.6-.1l2.1 1c.3.1.5.2.5.4.1.1.1.7-.1 1.4Z"/></svg>
 </a>
 
 `;
+}
+
+const BODY_HTML = buildBodyHtml(renderSections());
